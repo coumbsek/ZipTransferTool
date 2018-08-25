@@ -1,8 +1,6 @@
 ﻿Import-Module ('{0}\AddItemToContext\AddItemToContext' -f $modulesPaths)
 Import-Module ('{0}\Scripts' -f $modulesPaths)
-Import-Module ('{0}\Compress' -f $modulesPaths)
-
-
+Import-Module ('{0}\ZipTransferTool\Compress' -f $modulesPaths)
 
 Function Ini-TransferMenu(){
     #Remove-OSCContextItem -Directory -DisplayName:"Copy To Server" -force
@@ -82,15 +80,16 @@ Function Paste-FromServer($path){
             Paste-SingleFolderFromServer -path:$path -toTransfer:$toTransfer
         }
     }
-    #If multiple seclted files
+    #If multiple selected files
     else{
         $commingFromDirectory = Split-Path -Parent $toTransfer[0];
         $commingFromDirectory = [System.IO.Path]::GetFileName($commingFromDirectory)
-        $destinationFullPath = ("{0}\{1}.zip" -f $path,$commingFromDirectory)
-
+        $destinationFullPath = ("{0}{1}.zip" -f $path,$commingFromDirectory)
+        
         $zips = New-Object System.Collections.ArrayList
         $folders = New-Object System.Collections.ArrayList
         $files = New-Object System.Collections.ArrayList
+        $toZips = New-Object System.Collections.ArrayList
         $toTransfer | foreach {
             $fName = [System.IO.Path]::GetFileName($_)
             if (Test-Path $_ -PathType Leaf){
@@ -98,12 +97,17 @@ Function Paste-FromServer($path){
                     $zips.Add($_) | Out-Null
                 }else{
                     $files.Add($_) | Out-Null
+                    $toZips.Add($_) | Out-Null
                 }
             }else{
                 $folders.Add($_) | Out-Null
+                $toZips.Add($_) | Out-Null
             }
         }
-        Write-Host "Nothing to do"
+        $zips | foreach { Copy-Item -Path:$_ -Destination:$path}
+        Write-Host $destinationFullPath
+        Compress-ArchiveForTransfer -Path:$toZips -Destination:$destinationFullPath
+        Expand-ArchiveForTransfer -Path:$destinationFullPath -Destination:$path
     }
     <#
     if (Test-Path $destinationFullPath){
@@ -132,10 +136,10 @@ Function Paste-SingleFolderFromServer($path,$toTransfer){
     Compress-ArchiveForTransfer -Path:$files -DestinationPath:$destinationFullPath
     Write-Host $path
     Write-Host $destinationFullPath
-    Paste-SingleFileFromServer -path:$path -toTransfer:$destinationFullPath
+    Paste-SingleFileFromServer -path:$path -toTransfer:$destinationFullPath -InFolder
 }
 
-Function Paste-SingleFileFromServer($path, $toTransfer, [switch]$force){
+Function Paste-SingleFileFromServer($path, $toTransfer, [switch]$force, [switch]$InFolder){
     Write-Host $path
     Write-Host $toTransfer
 
@@ -154,7 +158,11 @@ Function Paste-SingleFileFromServer($path, $toTransfer, [switch]$force){
         if ($fileNameWithoutExtension.Length -ne 0){
             #mkdir $fileNameWithoutExtension -Force
             #Expand-Archive -Path:$toTransfer -Destination:("{0}\{1}" -f $path,$fileNameWithoutExtension) -Force:$force
-            Expand-ArchiveForTransfer -Path:$toTransfer -Destination:("{0}" -f $path) -Force:$force
+            if ($InFolder){
+                Expand-ArchiveForTransfer -Path:$toTransfer -Destination:$finalDestinationFolder -Force:$force
+            }else{
+                Expand-ArchiveForTransfer -Path:$toTransfer -Destination:("{0}" -f $path) -Force:$force
+            }
         }
     }else{
         Copy-Item -Path:$toTransfer -Destination:$path -Force:$force
