@@ -37,6 +37,13 @@ PATRAS 	  PAck TRAnsfer Server
     - Zip all files and directory contain in the clipboard together
     - Push the Zip file to destination
     - Ask for confirmation to overwrite or update when Zip with similar name exists at destination
+- __Functionnality__ Paste from server :
+  - Single File
+    - Copy it to destination if regular file or unzip to destination if .zip
+  -  Multiples Files/Directories
+    - Zip all files and directory contain in the clipboard which are not .zip together
+    - Push the Zip file to destination, unzip-it and erase the .zip
+    - Copy all Zips file to destination; unzip-them and erase all the .zip
 
 ### Changed
 
