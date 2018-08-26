@@ -1,4 +1,4 @@
-﻿Function Ini-CompressModule(){
+﻿Function Initiliaze-CompressModule(){
     $SevenZipInstallPath = "E:\ProgramFiles\7-Zip\7z.exe"  
     set-alias SevenZip  $SevenZipInstallPath 
     # use remove-item alias:SevenZip  if you want to remove t later

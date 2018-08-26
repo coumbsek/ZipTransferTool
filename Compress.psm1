@@ -1,4 +1,4 @@
-﻿Function Ini-CompressModule(){
+﻿Function Initialize-CompressModule(){
 }
 
 Function Compress-ArchiveForTransfer($Path, $DestinationPath, [switch]$Force, [switch]$Update){
