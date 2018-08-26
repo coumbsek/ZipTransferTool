@@ -1,8 +1,10 @@
 ﻿Import-Module ('{0}\AddItemToContext\AddItemToContext' -f $modulesPaths)
 Import-Module ('{0}\Scripts' -f $modulesPaths)
 Import-Module ('{0}\ZipTransferTool\Compress' -f $modulesPaths)
+Import-Module ('{0}\ZipTransferTool\Copy' -f $modulesPaths)
 
-Function Ini-TransferMenu(){
+Function Initialize-TransferMenu(){
+    $savedtWorkingDirectory = Get-Location
     #Remove-OSCContextItem -Directory -DisplayName:"Copy To Server" -force
     #Remove-OSCContextItem -Folder    -DisplayName:"Copy To Server" -force
     Remove-OSCContextItem -Directory -DisplayName:"Paste To Server" -force
@@ -11,6 +13,8 @@ Function Ini-TransferMenu(){
     #Add-OSCContextItem -Folder    -DisplayName:"Copy To Server" -Argument:"Powershell -windowstyle hidden  Copy-ToServer %L"#"Powershell -noexit Set-Variable -Name `"copyPath`" %L"
     Add-OSCContextItem -Directory -DisplayName:"Paste To Server" -Argument:"Powershell -noexit Paste-ToServer %v"
     Add-OSCContextItem -Directory -DisplayName:"Paste From Server" -Argument:"Powershell -noexit Paste-FromServer %v"
+    Initialize-CompressModule
+    cd $savedtWorkingDirectory
 }
 
 Function Copy-ToServer($path){
@@ -35,7 +39,7 @@ Function Paste-ToServer($path){
                     return;
                 }
             }
-            Copy-Item -Path:$toCompressAndTransfer -Destination:$path -Force
+            Copy-ItemForTransfer -Path:$toCompressAndTransfer -Destination:$path -Force
         }
         else{
             $destinationFullPath = ("{0}\{1}.zip" -f $path,$fileName)
@@ -104,26 +108,13 @@ Function Paste-FromServer($path){
                 $toZips.Add($_) | Out-Null
             }
         }
-        $zips | foreach { Copy-Item -Path:$_ -Destination:$path}
+        $zips | foreach { Copy-ItemForTransfer -Path:$_ -Destination:$path}
         Write-Host $destinationFullPath
         Compress-ArchiveForTransfer -Path:$toZips -Destination:$destinationFullPath
         Expand-ArchiveForTransfer -Path:$destinationFullPath -Destination:$path
+        Remove-Item $destinationFullPath
+
     }
-    <#
-    if (Test-Path $destinationFullPath){
-        $eraseAnyWay = Select-Item -Caption:"Already Existing Archive" -Message:"Do you want to: " -choice:"&Cancel","&OverWrite","&Update"
-        if ($eraseAnyWay -eq 0){
-            return;
-        }elseif($eraseAnyWay -eq 1){
-            Compress-Archive -Path:$toTransfer -DestinationPath:$destinationFullPath -CompressionLevel:NoCompression -Force
-            return;
-        }elseif($eraseAnyWay -eq 2){
-            Compress-Archive -Path:$toTransfer -DestinationPath:$destinationFullPath -CompressionLevel:NoCompression -Update
-            return;
-        }
-    }
-    Compress-Archive -Path:$toTransfer -DestinationPath:$destinationFullPath -CompressionLevel:NoCompression
-    #>
 }
 
 Function Paste-SingleFolderFromServer($path,$toTransfer){
@@ -165,7 +156,7 @@ Function Paste-SingleFileFromServer($path, $toTransfer, [switch]$force, [switch]
             }
         }
     }else{
-        Copy-Item -Path:$toTransfer -Destination:$path -Force:$force
+        Copy-ItemForTransfer -Path:$toTransfer -Destination:$path -Force:$force
     }
 }
 
