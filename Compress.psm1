@@ -18,3 +18,8 @@ Function Expand-ArchiveForTransfer($Path, $DestinationPath, [switch]$Force){
         Expand-Archive -Path:$Path -DestinationPath:$DestinationPath
     }
 }
+
+Function Get-FilesInZip($LitteralPath){
+    Add-Type -assembly "system.io.compression.filesystem"
+    [io.compression.zipfile]::OpenRead($LitteralPath).Entries.Name
+}
