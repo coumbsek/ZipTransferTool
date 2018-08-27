@@ -5,14 +5,12 @@ Import-Module ('{0}\ZipTransferTool\Copy' -f $modulesPaths)
 
 Function Initialize-TransferMenu(){
     $savedtWorkingDirectory = Get-Location
-    #Remove-OSCContextItem -Directory -DisplayName:"Copy To Server" -force
-    #Remove-OSCContextItem -Folder    -DisplayName:"Copy To Server" -force
     Remove-OSCContextItem -Directory -DisplayName:"Paste To Server" -force
     Remove-OSCContextItem -Directory -DisplayName:"Paste From Server" -force
-    #Add-OSCContextItem -Directory -DisplayName:"Copy To Server" -Argument:"Powershell -windowstyle hidden  Copy-ToServer %L"#"Powershell -noexit Set-Variable -Name `"copyPath`" %L"
-    #Add-OSCContextItem -Folder    -DisplayName:"Copy To Server" -Argument:"Powershell -windowstyle hidden  Copy-ToServer %L"#"Powershell -noexit Set-Variable -Name `"copyPath`" %L"
-    Add-OSCContextItem -Directory -DisplayName:"Paste To Server" -Argument:"Powershell -noexit Paste-ToServer %v"
-    Add-OSCContextItem -Directory -DisplayName:"Paste From Server" -Argument:"Powershell -noexit Paste-FromServer %v"
+    Remove-OSCContextItem -Directory -DisplayName:"Paste <-> Server" -force
+    Add-OSCContextItem -Directory -DisplayName:"Paste To Server" -Argument:"Powershell Paste-ToServer %v"
+    Add-OSCContextItem -Directory -DisplayName:"Paste From Server" -Argument:"Powershell Paste-FromServer %v"
+    Add-OSCContextItem -Directory -DisplayName:"Paste <-> Server" -Argument:"Powershell -noexit Paste-Server %v"
     Initialize-CompressModule
     cd $savedtWorkingDirectory
 }
@@ -82,7 +80,7 @@ Function Paste-FromServer($path, $multiFilesEnabled = $false){
     else{
         $commingFromDirectory = Split-Path -Parent $toTransfer[0];
         $commingFromDirectory = [System.IO.Path]::GetFileName($commingFromDirectory)
-        $destinationFullPath = ("{0}{1}.zip" -f $path,$commingFromDirectory)
+        $destinationFullPath = ("{0}\{1}.zip" -f $path,$commingFromDirectory)
         
         $zips = New-Object System.Collections.ArrayList
         $folders = New-Object System.Collections.ArrayList
@@ -116,7 +114,7 @@ Function Paste-FromServer($path, $multiFilesEnabled = $false){
 
 Function Paste-SingleFolderFromServer($path,$toTransfer){
     $fileName = [System.IO.Path]::GetFileName($toTransfer)
-    $destinationFullPath = ("{0}{1}.zip" -f $path,$fileName)
+    $destinationFullPath = ("{0}\{1}.zip" -f $path,$fileName)
 
     $files = Get-ChildItem $toTransfer | foreach { ("{0}\{1}" -f $toTransfer,$_)}
     Write-Host $files
