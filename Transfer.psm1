@@ -17,12 +17,6 @@ Function Initialize-TransferMenu(){
     cd $savedtWorkingDirectory
 }
 
-Function Copy-ToServer($path){
-    Write-Host "Path : " $path
-    $global:copyPath = $path
-    $path | foreach {$_ > $copyPathFile}
-}
-
 Function Paste-ToServer($path){
     $eraseAnyWay = $False
     $update = $False
