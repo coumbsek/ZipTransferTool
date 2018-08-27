@@ -55,4 +55,61 @@ Param(   [String[]]$choiceList,
    $Host.ui.PromptForChoice($caption, $message, $choicedesc, $default) 
 }  
 
+
+Function New-TestFile($Path,$size, [ValidateSet("k","M","G")]$unit){
+    Set-Alias fsutil "C:\Windows\System32\fsutil.exe"
+    if ($unit -eq "k"){
+        $size = 1024*$size
+    }elseif($unit -eq "M"){
+        $size = 1024*1024*$size
+    }elseif($unit -eq "G"){
+        $size = 1024*1024*1024*$size
+    }
+    fsutil file createnew $Path $size
+}
+
+Function New-TestData1(){
+    mkdir "zipTest"
+    cd "zipTest"
+
+    foreach ($i in (1..100)){
+        New-TestFile ("test100_{0}.txt" -f $i) 100
+    }
+    foreach ($i in (1..50)){
+        New-TestFile ("test50_{0}.txt" -f $i) 50 k
+    }
+    foreach ($i in (1..20)){
+        New-TestFile ("test20_{0}.txt" -f $i) 20 m
+    }
+    New-TestFile ("test{0}.txt" -f $i) 1 g
+
+    cd ..
+    Compress-Archive zipTest -DestinationPath:"test.zip"
+
+    mkdir "dir1\dir11"
+    foreach ($i in (1..20)){
+        New-TestFile ("dir1\test1_{0}.txt" -f $i) 20 m
+    }
+    foreach ($i in (1..20)){
+        New-TestFile ("dir1\dir11\test11_{0}.txt" -f $i) 20 m
+    }
+    mkdir "dir1\dir12"
+    foreach ($i in (1..20)){
+        New-TestFile ("dir1\dir12\test12_{0}.txt" -f $i) 20 m
+    }
+    mkdir "dir2\dir21"
+    foreach ($i in (1..20)){
+        New-TestFile ("dir2\test2_{0}.txt" -f $i) 20 m
+    }
+    foreach ($i in (1..20)){
+        New-TestFile ("dir2\dir21\test21_{0}.txt" -f $i) 20 m
+    }
+    mkdir "dir2\dir22"
+    foreach ($i in (1..20)){
+        New-TestFile ("dir2\dir22\test22_{0}.txt" -f $i) 20 m
+    }
+
+}
+
 Export-ModuleMember -Function 'Select-Item'
+Export-ModuleMember -Function 'New-Test1'
