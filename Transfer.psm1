@@ -67,7 +67,7 @@ Function Paste-ToServer($path){
     Compress-ArchiveForTransfer -Path:$toCompressAndTransfer -DestinationPath:$destinationFullPath
 }
 
-Function Paste-FromServer($path){
+Function Paste-FromServer($path, $multiFilesEnabled = $false){
     $eraseAnyWay = $False
     $update = $False
     $toTransfer = Get-Clipboard  -Format FileDropList
@@ -95,25 +95,28 @@ Function Paste-FromServer($path){
         $files = New-Object System.Collections.ArrayList
         $toZips = New-Object System.Collections.ArrayList
         $toTransfer | foreach {
-            $fName = [System.IO.Path]::GetFileName($_)
-            if (Test-Path $_ -PathType Leaf){
-                if ($fName -match ".zip"){
-                    $zips.Add($_) | Out-Null
+                $fName = [System.IO.Path]::GetFileName($_)
+                if (Test-Path $_ -PathType Leaf){
+                    if ($fName -match ".zip"){
+                        $zips.Add($_) | Out-Null
+                    }else{
+                        $files.Add($_) | Out-Null
+                        $toZips.Add($_) | Out-Null
+                    }
                 }else{
-                    $files.Add($_) | Out-Null
+                    $folders.Add($_) | Out-Null
                     $toZips.Add($_) | Out-Null
                 }
-            }else{
-                $folders.Add($_) | Out-Null
-                $toZips.Add($_) | Out-Null
             }
-        }
         $zips | foreach { Copy-ItemForTransfer -Path:$_ -Destination:$path}
-        Write-Host $destinationFullPath
-        Compress-ArchiveForTransfer -Path:$toZips -Destination:$destinationFullPath
-        Expand-ArchiveForTransfer -Path:$destinationFullPath -Destination:$path
-        Remove-Item $destinationFullPath
-
+        if ($multiFilesEnabled -eq $True){
+            Write-Host $destinationFullPath
+            Compress-ArchiveForTransfer -Path:$toZips -Destination:$destinationFullPath
+            Expand-ArchiveForTransfer -Path:$destinationFullPath -Destination:$path
+            Remove-Item $destinationFullPath
+        }else{
+            Copy-ItemForTransfer -Path:$toZips -Destination:$path
+        }
     }
 }
 
@@ -158,6 +161,55 @@ Function Paste-SingleFileFromServer($path, $toTransfer, [switch]$force, [switch]
     }else{
         Copy-ItemForTransfer -Path:$toTransfer -Destination:$path -Force:$force
     }
+}
+
+Function Paste-Server($path){
+    $isNetworkPath = Get-PathIdentity $path
+    $clipBoardContent = Get-Clipboard -Format FileDropList
+    $clipBoardPathSample = @($clipBoardContent)[0].DirectoryName
+    $isClipoardPathSampleNetworkPath = Get-PathIdentity -Path:$clipBoardPathSample
+    if ($isNetworkPath -eq $isClipoardPathSampleNetworkPath){
+        Copy-ItemForTransfer -Path:$clipBoardContent -Destination:$path
+    }
+    elseif ($isNetworkPath -ge 1){
+        Paste-ToServer $path
+    }
+    elseif ($isNetworkPath -eq 0){
+        Paste-FromServer $path
+    }
+    else{
+        Write-Error "Unsupported drive type"
+    }
+}
+
+Function Get-PathIdentity($Path){
+    cd $Path
+    $driveName = (Get-Location).Drive.Name
+    if ($driveName -eq $null){
+        Write-Host "I'm a Network not mapped path : " $Path
+        return 2
+    }
+    $drive = Get-PSDrive -Name $driveName
+    if ($drive.DisplayRoot -ne $null){
+        Write-Host "I'm a mapped Drive to : " $drive.DisplayRoot
+        return 1
+    }
+    if ($drive.Root -ne $null){
+        Write-Host "I'm a Drive to : " $drive.Root
+        return 0
+    }
+}
+
+Function New-TestFile($Path,$size, [ValidateSet("k","M","G")]$unit){
+    Set-Alias fsutil "C:\Windows\System32\fsutil.exe"
+    if ($unit -eq "k"){
+        $size = 1024*$size
+    }elseif($unit -eq "M"){
+        $size = 1024*1024*$size
+    }elseif($unit -eq "G"){
+        $size = 1024*1024*1024*$size
+    }
+    fsutil file createnew $Path $size
 }
 
 Export-ModuleMember -Function "*"

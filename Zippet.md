@@ -15,6 +15,7 @@ PATRAS 	  PAck TRAnsfer Server
 ## [Unreleased] 
 
 - Use Ordinateur\HKEY_CURRENT_USER\Software\Classes\\*\shell instead, does not requires privileges
+- Upgrade Copy function to display progress bar when copying multiple items
 
 ## [Links to read/use]
 
@@ -25,6 +26,13 @@ PATRAS 	  PAck TRAnsfer Server
   - https://keithga.wordpress.com/2014/06/23/copy-itemwithprogress/
   - https://stackoverflow.com/questions/13883404/custom-robocopy-progress-bar-in-powershell
 
+## [0.2.0] - 2018-08-27
+
+### Added
+
+- __Functionnality__ :
+	- Auto-detection of how to paste (from server or to server method)
+  
 ## [0.1.0] - 2018-08-24
 
 ### Added
