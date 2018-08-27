@@ -1,5 +1,5 @@
-﻿Import-Module ('{0}\AddItemToContext\AddItemToContext' -f $modulesPaths)
-Import-Module ('{0}\Scripts' -f $modulesPaths)
+﻿Import-Module ('{0}\ZipTransferTool\AddItemToContext' -f $modulesPaths)
+Import-Module ('{0}\ZipTransferTool\Scripts' -f $modulesPaths)
 Import-Module ('{0}\ZipTransferTool\Compress' -f $modulesPaths)
 Import-Module ('{0}\ZipTransferTool\Copy' -f $modulesPaths)
 
