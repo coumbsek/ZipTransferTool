@@ -31,14 +31,14 @@ Function Add-OSCContextItem
         [switch]$All
 	)
 
-	New-PSDrive -Name HKCR -PSProvider Registry -Root HKEY_CLASSES_ROOT | Out-Null #Create PSDrive
+	New-PSDrive -Name HKCR -PSProvider Registry -Root HKEY_CURRENT_USER | Out-Null #Create PSDrive
     
     if ($Folder){
-        $RegistryPathRoot = "HKCR:\Folder\shell"
+        $RegistryPathRoot = "HKCR:\Software\Classes\Folder\shell"
     }elseif ($Directory){
-        $RegistryPathRoot = "HKCR:\Directory\Background\shell"
+        $RegistryPathRoot = "HKCR:\Software\Classes\Directory\Background\shell"
     }elseif ($All){
-        $RegistryPathRoot = "HKCR:\*\shell"
+        $RegistryPathRoot = "HKCR:\Software\Classes\*\shell"
     }
 
 	$RegistryPath = ("{0}\$DisplayName" -f $RegistryPathRoot)
@@ -94,14 +94,14 @@ Function Remove-OSCContextItem
         [switch]$All,
         [switch]$force
 	)
-	New-PSDrive -Name HKCR -PSProvider Registry -Root HKEY_CLASSES_ROOT | Out-Null
+	New-PSDrive -Name HKCR -PSProvider Registry -Root HKEY_CURRENT_USER | Out-Null
     
     if ($Folder){
-        $RegistryPathRoot = "HKCR:\Folder\shell"
+        $RegistryPathRoot = "HKCR:\Software\Classes\Folder\shell"
     }elseif ($Directory){
-        $RegistryPathRoot = "HKCR:\Directory\Background\shell"
+        $RegistryPathRoot = "HKCR:\Software\Classes\Directory\Background\shell"
     }elseif ($All){
-        $RegistryPathRoot = "HKCR:\*\shell"
+        $RegistryPathRoot = "HKCR:\Software\Classes\*\shell"
     }
 
 	$RegistryPath = ("{0}\$DisplayName" -f $RegistryPathRoot)
