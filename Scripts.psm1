@@ -69,6 +69,8 @@ Function New-TestFile($Path,$size, [ValidateSet("k","M","G")]$unit){
 }
 
 Function New-TestData1(){
+    mkdir "TestData1"
+    cd "TestData1"
     mkdir "zipTest"
     cd "zipTest"
 
@@ -108,8 +110,12 @@ Function New-TestData1(){
     foreach ($i in (1..20)){
         New-TestFile ("dir2\dir22\test22_{0}.txt" -f $i) 20 m
     }
+}
 
+Function New-Test1(){
+    
 }
 
 Export-ModuleMember -Function 'Select-Item'
 Export-ModuleMember -Function 'New-Test1'
+Export-ModuleMember -Function 'New-TestData1'
