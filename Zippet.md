@@ -48,6 +48,13 @@ AREZ		  Automatic REpaste Zips
     $objFolder.CopyHere($srcFile, $FOF_CREATEPROGRESSDLG)
     ```
 
+- About Parallel Tasks:
+
+  - https://gallery.technet.microsoft.com/scriptcenter/Multi-threading-Powershell-d2c0e2e5
+  - http://www.nivot.org/post/2009/01/22/CTP3TheRunspaceFactoryAndPowerShellAccelerators
+  - http://www.get-blog.com/?p=22
+  - https://web.archive.org/web/20130127083728/http://ryan.witschger.net/?p=22
+
 ## [Thought]
 
 - What pasting multiples selected non zip files or folder from server should do along with zips one(s) should do ? Should-it unzip the zips at destination or not ?
